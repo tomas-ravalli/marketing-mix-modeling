@@ -1,14 +1,11 @@
 ![My Cover](./assets/dp-cover.jpeg)
 
-# {project title}
-
 <p align="left">
-  <img src="https://img.shields.io/badge/License-MIT-lightgrey" alt="License">
-  <img src="https://img.shields.io/badge/ML-Supervised-lightgrey" alt="License">
+  <img src="https://img.shields.io/badge/License-MIT-lightgrey" alt="License">
+  <img src="https://img.shields.io/badge/ML-Supervised-lightgrey" alt="ML Task">
 </p>
 
-> A machine learning powered dynamic pricing and decision support system for tickets pricing in the sports industry. 
-> **Objective:** To evolve a manual price-decision process into a data-driven, semi-automated workflow that improves ticketing revenue and sales.
+> An ML system that forecasts seat availability for each stadium zone per match across multiple time horizons. **Objective:** To solve the supply-demand imbalance in ticket sales by using machine learning to predict seat availability, maximizing revenue and improving the fan experience at the stadium.
 
 ### Outline
 
@@ -23,143 +20,87 @@
 
 ## Key Results
 
-| Metric                      | Result                               | Description |
-| :-------------------------- | :----------------------------------- | :----------------------------------- |
-| 📈 Revenue Uplift           | **+6%** Average Revenue per Match    | Achieved by dynamically adjusting prices to match real-time demand forecasts, capturing more value from high-demand periods. Validated via A/B testing.|
-| 🎟️ Optimized Sales          | **+4%** Increase in Ticket Sell-Through Rate | Didn't maximize revenue at the cost of empty seats; also improved occupancy, which positively affects atmosphere and in-stadium sales.|
-| ⚙️ Operational Efficiency   | **7x improvement** in Time-to-Price-Change | From weekly to daily changes by automating the manual data aggregation and analysis pipeline. The system delivered price recommendations directly, which shifted the team's focus from data work to strategic approval.|
-| 🤝 Recommendation Adoption | **86%** of Proposals Approved | Percentage of automated price proposals that were reviewed and approved by the commercial team, indicating trust in the model's business alignment.|
-| 🎯 Demand Forecast Accuracy | **19%** WAPE | The model's predictions had a low average error, performed 60% better than a baseline `DummyRegressor`, indicating that sales forecasts are reliable.|
+| Metric                      | Result                          | Description |
+| :-------------------------- | :------------------------------ | :--------------------------------------------------------------------------------------------------------------------------------------- |
+| 📈 Revenue Growth             | **+15%** Increase       | By forecasting future inventory, the system opened sales early to meet fan demand, capturing revenue previously lost to "not available" messages. |
+| 💰 Average Order Value      | **+20%** Increase               | Guaranteed paired and group seating, made possible by granular forecasts, encouraged larger transactions from families and groups.|
+| 🎟️ Average Ticket Value     | **+10%** Increase               | Prices were set based on true forecasted supply instead of limited daily inventory, maximizing revenue per seat powered by a `dynamic pricing engine` [![Badge Text](https://img.shields.io/badge/Link_to_Repo-grey?style=flat&logo=github)](https://github.com/tomas-ravalli/fcb-dynamic-pricing) |
+| 🍔 In-Stadium Spend         | **+8%** Increase            | A second-order effect of higher attendance. More fans in the stadium naturally leads to increased sales of food & beverage, and merchandise.  |
+| ⭐ Fan Experience           | Paired Seating Guaranteed | Transformed the fan purchase journey from a lottery to a reliable process, drastically reducing empty single seats and improving atmosphere. |
+| 📢 Marketing Efficiency     | Improved ROAS **14%** | A wider time window to market the match allows for more effective campaign planning and better Return on Ad Spend.                  |
+| 🛡️ Fraud Reduction          | Mitigated scalping | By delaying the dispatching of physical tickets until 48 hours before kick-off, the system combats fraud and unauthorized resale.             |
+| 🎯 Forecast Accuracy        | **84%** (R²)           | The model's predictions of final seat availability were highly accurate, providing a reliable basis for advance sales.                       |
 
 
 ## Overview
 
-The main challenge was to transform a static, manual pricing strategy into a responsive, automated system with a human-in-the-loop (HiTL), creating a market-driven approach for both setting and responding to ticket prices per game.
+The core business problem originates with the club's membership model. Approximately 85% of the stadium's 100,000 seats are owned by season ticket holders (club members). This and other factors leaves only about 10% of stadium seats available for general sale from day one. Members who won't attend a match can release their seat back to the Club for resale via the official `Club Members App`.
 
 <p align="center">
-  <img src="./assets/co-ss.png" alt="Stadium ticketing price list" width="1000">
-  <br>
-  <em>Fig. 1: A standard stadium ticket pricing by zone during checkout process.</em>
+  <img src="./assets/sb-slss.jpeg" alt="Club members app" width="350">
+  <br>
+  <em>Fig. 1: Seat release for multiple matches from the Club's Members App.</em>
 </p>
 
-To illustrate how the system directly addresses key business challenges, the following table maps each identified pain point to its corresponding solution:
+However, member behavior creates a massive supply-demand gap: **on average, 40% of members seats are released within the last 72 hours of a match**, while fan demand is already high months in advance. This mismatch leads to lost revenue, a poor fan experience with "not-available" messages, and fragmented single seats that are hard to sell. The diagram below illustrates the supply-demand gap the system was built to solve.
 
-| 🚩 Problem | 💡 Solution |
+<p align="center">
+  <img src="./assets/sb-sdg.png" alt="Supply-demand gap" width="1500">
+  <br>
+  <em>Fig. 2: The supply-demand gap between early fan demand and late seat releases.</em>
+</p>
+
+The **Seats Availability Engine** (AKA SmartBooking) was designed to bridge this gap. It acts as a forecasting layer, using machine learning to predict how many seats will become available per stadium zone at various time horizons before match day. A **Ticketing Manager** then reviews this forecast, applies business logic and safety margins, and makes the final decision on how much inventory to push to the live ticketing system. This human-in-the-loop approach combines predictive power with expert oversight.
+
+| 🚩 The Problem | 💡 The Solution |
 | :--------------------------- | :---------------------------- |
-| **Static pricing**: Prices were set once per season in rigid, inflexible categories (e.g., A++, A, B), then updated weekly/monthly. | **Dynamic recommendations**: Generates price proposals for each seating zone based on near real-time data analysis, allowing for daily updates. |
-| **Manual adjustments**: The team would slowly analyze various metrics to manually propose price changes. | **Impact simulation**: Instantly models the projected impact of any price change on revenue and ticket sales. |
-| **Data bottleneck**: Extracting data manually from fragmented systems was slow and operationally complex. | **Centralized data**: Automatically aggregates all key data points –sales, web analytics, contextual data, etc.– into one place. |
-| **Slow implementation**: The process to act on a decision was manual and disconnected from the sales platform. | **Seamless integration**: Allows for one-click approval on a dashboard, which triggers a price update to the live ticketing system via REST API. |
-
-The diagram below illustrates the project's conceptual framework. The system acts as the central *brain* to balance the goals of The Club and The Fan. It operates in a continuous loop by ingesting internal and external factors to forecast demand at various price points. The **Decision Engine** then uses this forecast to recommend an optimal price.
-
-<p align="center">
-  <img src="./assets/dp-hl.png" alt="High-level Project Diagram" width="2000">
-  <br>
-  <em>Fig. 2: A high-level diagram of the Dynamic Pricing Engine.</em>
-</p>
+| **"Not available" illusion**: Fans faced "not available" messages, unaware that new seats appear in the last 72 hours. | **Advance availability**: Predicts final seat count weeks in advance, allowing the club to sell tickets for seats that are not yet officially released. |
+| **Lost revenue**: High, early demand went unmet due to the delay in seat releases, leading to significant lost revenue for the club. | **Revenue capture**: Unlocks millions in sales by matching early fan demand with manager-approved predicted inventory. |
+| **Poor fan experience**: The unpredictable nature of ticket availability frustrated fans and fueled secondary resale markets. | **Guaranteed experience**: Offers fans, especially families and groups, guaranteed paired seating, improving satisfaction and trust. |
+| **Seat fragmentation**: Last-minute releases often resulted in many isolated single seats that were difficult to sell. | **Optimized occupancy**: By selling seats early and guaranteeing pairs, the system reduces empty singles and maximizes attendance. |
 
 
 ## Architecture
 
-The general workflow is as follows:
-1. **Data Sources** are collected and fed into the central engine.
-2. The **Dynamic Pricing Engine** uses machine learning models and business rules to generate a price recommendation.
-3. The pricing team uses the **UI & Integration** layer to review, simulate, and approve the price, which is then updated in the live ticketing system.
-
 <p align="center">
-  <img src="./assets/dp-ll.png" alt="Low-level Project Diagram" width="950">
+  <img src="./assets/sb-scd.png" alt="System context diagram" width="850">
     <br>
-  <em>Fig. 3: A low-level diagram of the Dynamic Pricing Engine.</em>
+  <em>Fig. 3: [System Context Diagram] Seat Availability Engine.</em>
 </p>
 
-<details>
-<summary><b>Click to see the detailed architecture breakdown</b></summary>
-
-### Data Sources
-
-| Component | Description |
-| :--- | :--- |
-| **Ticket Sales & Availability** | Historical and real-time data on ticket inventory, sales velocity, and transactions per seating zone. |
-| **Competitors Pricing** | Scraped pricing data from secondary markets (e.g., Viagogo, Stubhub, etc.) for competitive analysis. |
-| **Web/App Analytics** | Data on user behavior from the official website and app, including page visits, clicks, and conversion funnels. |
-| **Matches, Competitions & Channels** | Foundational information about each match, including opponent, date, competition type, and sales channel. |
-
-### Dynamic Pricing Engine
-
-| Component | Description |
-| :--- | :--- |
-| **Data Ingestion & Centralization** | The entry point that gathers data from all sources and consolidates it into a unified data store for processing. |
-| **ML & Analytics Core** | The central "brain" where data is processed, features are engineered, and the machine learning models are trained and executed. |
-| **Business Constraints** | A module that receives strategic inputs from the club (e.g., price floors/caps) and applies these rules to the optimization process, ensuring recommendations are compliant with business strategy. |
-| **Decision Module** | A container for the core predictive models that feed the optimization engine. |
-| ┣ **Demand Forecast Model** | A model that predicts the expected volume of ticket sales at various price points, using historical data and match context to inform its forecast. |
-| ┣ **Match Clustering** | An algorithm that groups similar past matches to provide a contextual baseline for the *Demand Forecast Model*. |
-| **Decision Engine: Optimization & Simulation** | Takes the predicted demand curve and business rules to find the revenue-maximizing price. It also runs simulations for "what-if" scenarios. |
-| **Anomaly Warnings** | An alerting system that flags unusual sales patterns or pricing recommendations that deviate from norms. |
-| **Impact Simulation** | A feature that allows a human user to test a hypothetical price and see a projection of its impact on sales and revenue. |
-| **Price Variation Proposal** | The final output of the engine: a concrete price recommendation for a given seat or section. |
-
-### UI & Integration
-
-| Component | Description |
-| :--- | :--- |
-| **User Control Panel** | The dashboard used by the pricing team to view price proposals, run impact simulations, and approve or reject changes, enabling Human-in-the-Loop (HITL) control. |
-| **REST API** | The communication layer that allows the User Control Panel to send approved price change commands to the live ticketing system. |
-| **Price Drop Logic** | An automated module that can trigger price change events based on predefined rules, such as slow ticket sales. |
-| **Ticketing Purchase System** | The club's main backend system that processes transactions and manages ticket inventory. It receives price update commands from the API. |
-| **Fan Engagement** | The final layer where fans interact with the system's output. |
-| ┗ **Ticketing Purchase UI** | The public-facing website or application screen where fans see the dynamically adjusted prices and make their purchases. |
-
-</details>
+### System synergy
+The forecast generated by the Seat Availability Engine is a critical input for the club's **[Dynamic Pricing Engine](https://github.com/tomas-ravalli/fcb-dynamic-pricing)**. Knowing the true expected supply allows the pricing engine to move beyond simple static pricing and set optimal prices that accurately reflect real-time market conditions. This synergy between forecasting supply and optimizing price is what unlocks significant revenue growth.
 
 
 ## Dataset
 
-To showcase the model's capabilities, this repository uses a synthetically generated dataset. This dataset is not random data; it is engineered to mirror the complexity, scale, and statistical properties of a real-world ticketing environment for a top-tier football club.
+To showcase a realistic data pipeline, this project uses two synthetic datasets: one for raw events and one for time-series modeling.
 
-The dataset simulates:
+**1. Raw event data**: `club_members_app.csv`
 
-* **A focused set of matches:** It contains data for **10 unique matches**, representing a diverse sample of fixtures including league, cup, and international games.
-* **Complete sales history:** For each of these matches, a full **90-day time-series** is generated. This means there is a daily record capturing how demand signals, sales, and availability evolve from the day tickets go on sale until match day.
-* **Zone-level granularity:** Each daily record is further broken down by **5 distinct seating zones**, each with its own capacity and base price, reflecting how different stadium areas have unique demand curves.
+This file simulates the raw data feed from the `Club Members App`, representing a **time-ordered event stream**. Each row is a single transaction with a `release_timestamp`, capturing the moment a season ticket holder releases their seat. This raw, event-level data provides the ground truth for the model's target variable and is the source from which all time-dependent features are engineered.
 
-A key part of the strategy was to move beyond our internal sales history by enriching our models with external data. Through feature engineering, we combined our own historical performance data with real-world market signals—like opponent rankings and social media hype—to create a more holistic and predictive view of market dynamics, resulting in a feature set combining **internal and external** data.
+**2. Time-Series structured data**: `match_data_timeseries.csv`
 
-<details>
-<summary><b>Click to see the full list of features</b></summary>
+This is the final, feature-rich dataset used to train the forecasting model, structured to allow for dynamic predictions at any point in time before a match. Its **granularity** is a **daily snapshot** per match and zone, meaning there is one row for Match 1, Zone A at 30 days before kick-off, another for 29 days, and so on. To create it, the data script transforms the raw event data into this time-series format. For each day, it calculates time-dependent features like **`seats_released_so_far`** and **`release_velocity_7d`** and then joins them with static contextual features like opponent and weather. The **target variable**, **`final_released_seats`**, represents the total number of seats that will ultimately be released for that match and zone. This value remains consistent across all daily snapshots for a given match.
 
-</br>
+### Features
 
--   `competing_city_events` (*Boolean*): `True` if there are other major events (concerts, festivals, summits) in the city on the same day.
--   `competitor_avg_price` (*Float*): The average ticket price for a comparable entertainment event (e.g., mobile world congress, a concert) on the same day. Represents the competitive landscape.
--   `days_until_match` (*Integer*): The number of days remaining before the match. A key feature for time-series analysis, as demand typically increases as the match date approaches.
--   `ea_opponent_strength` (*Integer*): A rating of the opponent's strength based on the EA Sports FC game, determined by player ratings and team tactics.
--   `flights_to_barcelona_index` (*Integer*): A synthetic index (scaled 20-100) representing the volume of inbound flights to the city. This serves as a proxy for tourist demand.
--   `google_trends_index` (*Integer*): A synthetic index (scaled 20-100) representing public search interest for the match on Google. A proxy for general public interest and hype.
--   `holidays` (*Boolean*): `True` if the match day falls on or near a local or national holiday.
--   `internal_search_trends` (*Integer*): A synthetic count of searches for match tickets on the club's own website or app. A direct signal of purchase intent from the user base.
--   `league_winner_known` (*Boolean*): `True` if the winner of the league has already been decided before the match.
--   `match_id` (*Integer*): A unique identifier for each football match.
--   `opponent_tier` (*String*): A categorical rating of the opponent's quality and appeal (`A++`, `A`, `B`, `C`). Higher tiers signify more attractive matches.
--   `seat_zone` (*String*): The name of the seating zone in the stadium (e.g., 'Gol Nord', 'Lateral', 'VIP').
--   `social_media_sentiment` (*Float*): A synthetic score representing the overall public sentiment (e.g., from -1.0 for strong negative to +1.0 for strong positive) about the match on social media platforms.
--   `team_position` (*Integer*): The team's current position in the league table at the time of the match.
--   `ticket_availability_pct` (*Float*): The percentage of total seats in the zone that are still available.
--   `ticket_price` (*Float*): The price of the ticket. This is a *key input* feature for the demand model and the *final output* of the optimization engine.
--   `top_player_injured` (*Boolean*): `True` if a key player is injured and not expected to play in the match.
--   `weather_forecast` (*String*): The predicted weather for the match day ('Sunny', 'Windy', 'Rain').
--   `web_conversion_rate` (*Float*): The synthetic conversion rate on the website (ticket purchases / visits). A measure of how effectively web traffic is converting into sales.
--   `web_visits` (*Integer*): A synthetic count of visits to the ticketing section of the club's official website. A measure of online traffic and interest.
--   `weekday_match` (*Boolean*): `True` if the match is played on a weekday (Monday-Friday).
--   **`zone_historical_sales`** (*Integer*): **(Target Variable)** The historical number of tickets sold for a similar match in that zone. This is the *primary target variable* for the demand forecast model.
--   `zone_seats_availability` (*Integer*): The absolute number of seats still available for purchase in that zone.
+The model uses a wide range of features, categorized to ensure a holistic view of supply and demand drivers.
 
-</details>
+| Category          | Features                                                                                 | Description                                                      |
+| :---------------- | :--------------------------------------------------------------------------------------- | :--------------------------------------------------------------- |
+| **Match** | `weekday`, `month`, `kick-off_time`, `competition`, `is_weekend`                           | Core temporal and event-specific details for the match.          |
+| **Opponent** | `opponent_position`, `is_derby`                                                          | Quantifies the opponent's quality and the match's rivalry level. |
+| **Team Momentum** | `team_position`, `last_match_lost`, `goal_difference_last_5`, `top_player_injured`       | Captures the home team's recent performance and status.          |
+| **Weather** | `is_rain`, `is_storm`, `is_wind`                                                         | Forecasted weather conditions that can influence attendance.     |
+| **External** | `is_holiday`, `day_before_holiday`, `new_player_debuting`, `popular_concert_in_city` | External events and factors that can impact attendance decisions.|
+> **`final_released_seats`**[Target Variable]: The final, total number of seats that were released by season ticket holders in that zone for that match. This is the value the model aims to predict.
+
 
 ### Match Excitement Factor
 
-To create a realistic dataset, the generation script doesn't just create random numbers. Instead, it simulates the underlying market dynamics by creating a unified **"Match Excitement Factor"**. This single variable acts as the primary driver for most of the demand signals in the dataset.
+To create a realistic dataset, the generation script doesn't just create random numbers. Instead, it simulates the underlying market dynamics by creating a unified **"Match Excitement Factor"**. This single variable acts as the primary driver for most of the supply signals in the dataset.
 
 The logic is designed to mimic how a real fan's interest level would change based on the context of a match:
 
@@ -176,147 +117,115 @@ The logic is designed to mimic how a real fan's interest level would change base
 
 ## Modeling
 
-The goal is not just to build a black-box forecasting model, but to create a system that models the underlying drivers of ticket sales. By breaking down the problem into its constituent parts (time-series patterns, event-based impacts, external factors), we can better understand how each component contributes to the final outcome and more accurately quantify uncertainty. This approach of building a "driver tree" for the business, allows us to pinpoint the exact sources of error and continuously refine our understanding of the market.
+The modeling approach is designed to provide dynamic forecasts that update over time. Instead of a single prediction, the system can answer the business question: *"Given everything we know **today**, how many seats will ultimately be released by club members?"*
 
-This translates into a two-stage process: first **predict**, then **optimize**. The system first forecasts demand based on our business theory and then uses that forecast within a *Decision Engine* to find the optimal price.
+<p align="left">
+  <img src="./assets/sb-mle.png" alt="ML Engine" width="275">
+  <br>
+  <em>Fig. 4: Seats Availability Engine component.</em>
+</p>
 
-### Stage 1: 📈 Demand Forecasting
+### 📈 Dynamic Availability Forecasting
 
-> This stage answers the business question: *"At a given price, how many tickets are we likely to sell?"*
-
-| Aspect | Description |
-| :--- | :--- |
-| **Model** | A hybrid **ensemble model** that combines `Prophet` and `XGBoost` in a residual fitting approach. |
-| **Rationale** | This two-step model leverages the strengths of both algorithms. **Prophet** first models the core time-series components (trend, seasonality, and match-day effects). **XGBoost** then models the remaining variance (the residuals) using a rich feature set, capturing complex interactions that Prophet cannot. |
-| **Features** | The model uses a rich set of internal and external factors–including historical sales, opponent tier, social media sentiment, and other engineered features–to build a comprehensive **"driver tree"** that explains demand. |
-| **Application** | This trained model powers the *Impact Simulation* feature, allowing the commercial team to perform "what-if" analysis by inputting a hypothetical price and instantly seeing the likely impact on revenue and sales. |
-| **Design Choice** | A hybrid model was chosen after testing multiple approaches, as the optimal forecasting method is never known beforehand. This ensemble was selected for its superior accuracy; it combines Prophet's strength in modeling core time-series trends with XGBoost's power to capture the remaining complex patterns, leading to a lower overall error. |
-
-<details>
-<summary><b>Click to see the detailed model performance evaluation</b></summary>
-  
-</br>
-
-To ensure the final pricing decision is effective, the underlying demand forecast must be highly accurate. The primary goal was to minimize prediction error, evaluated against a **baseline model** (`DummyRegressor`). The key metric chosen was **WAPE**, as it provides a clear, interpretable measure of percentage error.
-
-Determining the best forecasting method is only one half of the equation. We also need to estimate **prediction intervals**–the upper and lower forecast values that the actual value is expected to fall between with a high probability. Prediction intervals are a function of how much data we have, the variation in that data, the forecast horizon, and the chosen model. They are crucial for risk assessment.
-
-As this project uses a hybrid ensemble model, performance is evaluated on the **final, combined forecast**. The system first generates a baseline forecast with `Prophet`, then uses `XGBoost` to predict the remaining error (residuals). The final prediction (`Prophet forecast + XGBoost error forecast`) is then compared against the actual historical sales to derive the metrics below.
-
-| Metric | Value | Rationale |
-| :--- | :--- | :--- |
-| **WAPE** (Primary Metric) | **19%** | **Why we chose it:** Weighted Absolute Percentage Error tells us the average forecast error in percentage terms, making it highly interpretable for revenue planning. A low WAPE is our main goal. |
-| **R² Score** | **0.83** | **For model fit:** This shows that the model explains 83% of the variance in ticket sales, confirming it has a strong statistical fit to the data and learns the underlying patterns effectively. |
-| **Mean Absolute Error (MAE)** | **~254 tickets**| **For business context:** MAE tells us that, on average, our forecast is off by about 254 tickets. This gives stakeholders a concrete sense of the error margin in absolute units. |
-| **Root Mean Squared Error (RMSE)**| **~312 tickets**| **For robustness & uncertainty:** RMSE penalizes larger errors more heavily. A higher RMSE relative to MAE suggests the model occasionally makes larger prediction errors. This is critical for risk assessment and for estimating **prediction intervals** to understand the forecast's range of uncertainty. |
-
-The performance was considered **successful**. A WAPE of 19% and an R² of 0.83 demonstrated a robust and reliable forecasting engine.
-
-</details>
-
-### Stage 2: ⚙️ Price Optimization
-
-> This stage answers the business question: *"What is the single best price to maximize total revenue?"*
+This approach creates a predictive asset that the business can use to make proactive decisions.
 
 | Aspect | Description |
 | :--- | :--- |
-| **Model** | A custom *Optimization Engine* that performs an exhaustive grid search over a range of valid prices. |
-| **Rationale** | A grid search is a reliable and straightforward method to find the optimal price within defined business constraints (e.g., price caps and floors). It guarantees finding the maximum projected revenue. |
-| **Process** | The engine iterates through potential prices (e.g., from €75 to €350), uses the demand model to predict sales for each, calculates the projected revenue `(Price × Predicted Sales)`, and returns the optimal price. |
-| **Output** | The engine's primary output is the official `Price Variation Proposal`, which is sent to the commercial team for review and approval. |
-| **Design Choice**| Bayesian Optimization would likely find a near-optimal price much faster by intelligently exploring the price space. However, it doesn't guarantee finding the absolute maximum. For a critical business decision like pricing, **guaranteeing the optimal recommendation** (within the model's predictive power) is often more valuable than the computational speed gained from a heuristic approach. |
+| **Model** | An **`XGBoost` Regressor**. |
+| **Rationale** | XGBoost excels at handling the mix of static and dynamic features in the time-series dataset. It can effectively model how the forecast should evolve as new information (like daily seat releases) becomes available closer to the match day. |
+| **Features** | The model uses a rich set of features, including: <br> • **Static Features**: `opponent_position`, `is_derby`, etc. <br> • **Time-Dependent Features**: `days_until_match`, `seats_released_so_far`, `release_velocity_7d`. |
+| **Application** | The model can generate a new forecast at **different time horizons** (e.g., daily). This allows the Ticketing Manager to monitor how the prediction evolves as new data becomes available and apply a safety buffer to the latest forecast, enabling more agile inventory management. |
+| **Production Trade-offs** | The chosen model provides the best balance between **prediction accuracy**, **serving speed** (latency), and **inference cost**, ensuring strong performance in a live environment. |
 
 <details>
 <summary><b>Click to see the detailed model performance evaluation</b></summary>
-  
 </br>
 
-Since this is an optimization engine, not a predictive model, its performance is measured by its business value and efficiency.
+The model was evaluated against simpler benchmarks to prove its value, as there was no intelligent system in place before to compare against:
 
-| Metric | Measurement | Success Criteria |
-| :--- | :--- | :--- |
-| **Revenue lift** | Through A/B testing, comparing the revenue generated by the engine's prices against a control group. | A consistent, statistically significant increase in average revenue per match. |
-| **Adoption rate** | Tracking the percentage of `Price Variation Proposals` that are reviewed and approved by the commercial team. | A high adoption rate (>80%) indicates that the team trusts and values the engine's recommendations. |
-| **Computation time**| Measuring the time it takes for the grid search to complete for a given match. | The time must be within acceptable operational limits (<2') to allow for rapid, on-demand analysis by the commercial team. |
+| Source of Prediction | Accuracy |
+| :--- | :--- |
+| Averages (Mean, Median, etc.) | 45% |
+| Domain Experts | 65% |
+| **Machine Learning Model** | **84%** (R²) |
+
+The model's **84% accuracy** provided a strong statistical foundation for the business to act on the forecasts with confidence. The model was also interpreted using **SHAP values** to ensure the relationships it learned were logical and explainable to stakeholders.
 
 </details>
 
 ### Validation
 
-Before a full rollout, the system was rigorously validated through a series of controlled **A/B tests** to scientifically measure its impact and mitigate risk. The core principle was to isolate the effect of the dynamic pricing engine from all other market variables. 
+Validating the model's business impact required moving beyond simple accuracy metrics to rigorously measure its causal effect on revenue. The core question was: "*Does using this model's forecast cause an increase in revenue?*"
 
-The results from the A/B tests confirmed our hypothesis, showing a consistent **+6% lift in average revenue** for the treatment group. Additionaly, this was achieved while also increasing the sell-through rate, demonstrating that the model was effective at finding the true market equilibrium. These conclusive, data-backed results gave the business full confidence to proceed with a full-scale rollout of the dynamic pricing system across all stadium zones.
+To answer this, we implemented a two-fold validation framework. This approach confirmed a **+15% increase in total ticket sales revenue**, directly attributable to the Seat Availability ML system.
 
 <details>
-<summary><b>Click to see the full experimental design</b></summary>
+<summary><b>Click to see the full validation framework</b></summary>
 
-### Experimental Design
+#### 1. Strategy
 
-The validation used a segment-based A/B test, where different seating zones in the stadium were used as the unit of diversion to ensure a clean comparison.
+The first step was to frame the problem correctly. A simple A/B test comparing different matches is invalid due to confounding variables (opponent quality, weather, etc.). Our strategy therefore combined offline and online validation.
 
-1.  **Treatment vs. Control Groups**: The stadium was segmented into statistically similar groups of seating zones.
-    * **Treatment Group = Dynamic Pricing**: A subset of zones had their prices set by the new automated engine. These prices could change daily based on the model's recommendations.
-    * **Control Group = Static Pricing**: The remaining zones operated under the existing pricing strategy (e.g., prices set manually at the beginning of the season), serving as our baseline for comparison.
+* **Offline validation (pre-flight check):** Before any real-world testing, we performed rigorous backtesting on historical data. This involved training the model on a period of data and evaluating its forecast accuracy on a hold-out set. We used SHAP values to interpret the model's predictions, ensuring it learned logical patterns and wasn't relying on spurious correlations. This validated the model's fundamental soundness.
 
-2.  **Hypothesis**: Our primary hypothesis was that the treatment group would generate a statistically significant lift in total revenue per match without negatively impacting the ticket sell-through rate compared to the control group.
+* **Online validation (causal impact measurement):** To measure the real-world impact, we implemented a quasi-experimental design using **Propensity Score Matching (PSM)**. This statistical technique allowed us to create a fair, "apples-to-apples" comparison group from historical data, effectively simulating a controlled experiment to isolate the model's causal effect on revenue.
 
-3.  **Duration**: The tests were run over several matches of varying importance (e.g., high-demand league matches, lower-demand cup matches) to ensure the results were robust and not skewed by the unique characteristics of a single event.
+#### 2. Execution
 
-### Key metrics tracked
+This phase involved executing the PSM design to get a reliable measurement of the revenue lift.
 
-To evaluate the experiment's outcome, we continuously monitored several KPIs for both groups:
+* i. **Define groups**: We established two groups for our analysis:
+    * **Treatment group**: A set of recent matches where the Ticketing Manager used the ML system forecast to release inventory.
+    * **Control group**: A large pool of historical matches from seasons where the ML system did not exist.
 
-* **Primary metric**: Avg. Revenue Per Seating Zone.
-* **Secondary metrics**:
-    * Ticket Sell-Through Rate (occupancy).
-    * Avg. Ticket Price.
-    * Sales Velocity (how quickly tickets sold).
+* ii. **Build the propensity model**: We built a supervised classification model to calculate a "propensity score" for every match in both groups. This score quantifies the character of each match based on its features (opponent tier, competition, day of the week, etc.), representing the probability of it receiving the "treatment."
+
+* iii. **Match & compare**: Using a nearest-neighbor matching algorithm, we found a "statistical twin" from the control group for each match in the treatment group. This twin was the historical match with the most similar propensity score, ensuring the comparison was fair.
+
+* iv. **Define KPIs**: We measured the difference between the matched pairs across several metrics:
+    * **Primary KPI**: Total Ticket Revenue.
+    * **Secondary KPIs**: Final Attendance Rate, Average Order Value (AOV), and the sell-through rate of the predicted inventory.
+
+This rigorous process gave us high confidence that the measured uplift was due to the ML system and not external or random factors.
 
 </details>
 
 
 ## Structure
 
-While most of the source code for this project is private, this section outlines the full structure. You can explore the synthetic data generation logic in `src/data/make_dataset.py` to see how the realistic environment was simulated.
+While most of the source code for this project is private, this section outlines the full structure. You can explore the synthetic data generation logic in `src/data/` to see how the realistic environment was simulated.
 
-```bash
-FCB_Dynamic-Pricing/
-├── .gitignore                          # (Public) Specifies files for Git to ignore.
-├── LICENSE                             # (Public) Project license.
-├── README.md                           # (Public) This project overview.
-├── requirements.txt                    # (Private) The requirements file for the full project.
-├── config.py                           # (Private) Configuration file for paths and parameters.
-├── assets/                             # (Public) Diagrams and images for documentation.
-│   ├── dp-hl.png
-│   └── dp-ll.png
+```
+fcb-smartbooking/
+├── .gitignore                            # (Public) Specifies files for Git to ignore.
+├── LICENSE                               # (Public) Project license.
+├── README.md                             # (Public) This project overview.
+├── requirements.txt                      # (Private) The requirements file for the full project.
+├── config.py                             # (Private) Configuration file for paths and parameters.
+├── assets/                               # (Public) Diagrams and images for documentation.
 ├── data/
-│   └── 03_synthetic/
-│       └── synthetic_match_data.csv    # (Public) The generated synthetic dataset.
-├── models/                             # (Private) Stores trained model artifacts.
-│   ├── demand_forecast_model.joblib
-│   └── feature_pipeline.joblib
-├── notebooks/                          # (Private) Jupyter notebooks for analysis.
-│   └── eda.ipynb
+│   └── 03_synthetic/
+│       ├── club_members_app.csv          # (Public) Synthetic raw seat release events.
+│       └── match_data_timeseries.csv     # (Public) The final time-series modeling dataset.
+├── notebooks/
+│   └── eda.ipynb                         # (Private) Exploratory Data Analysis.
 └── src/
-    ├── __init__.py                     # (Private) Makes src a Python package.
-    ├── data/
-    │   └── make_dataset.py             # (Public) The script to generate the synthetic data.
-    ├── features/                       # (Private) Scripts for feature engineering.
-    │   └── build_features.py
-    ├── models/                         # (Private) Scripts for model training and prediction.
-    │   ├── train_demand_model.py
-    │   └── predict_demand.py
-    └── decision_engine/                # (Private) Scripts for simulation and optimization.
-        ├── constants.py
-        ├── simulate.py
-        └── optimize.py
-````
+    ├── __init__.py
+    ├── data/
+    │   ├── make_dataset_members.py       # (Public) Script to generate the members app data.
+    │   └── make_dataset_match.py         # (Public) Script to generate the final time-series data.
+    ├── features/
+    │   └── build_features.py             # (Private) Feature engineering scripts.
+    └── models/
+        ├── train_availability_model.py   # (Private) Script for model training.
+        └── predict_availability.py       # (Private) Script for generating predictions.
+```
 
 </br>
 
 > [!WARNING]
-> * **Data:** All data presented in this public repository is synthetically generated. It is designed to mirror the statistical properties of the original dataset without revealing any confidential information.
-> * **Code:** To honor confidentiality agreements, the source code and data for the original project are private. This repository demonstrates the modeling approach and best practices used in the real-world solution.
+> * **Data:** All data presented in this public repository is synthetically generated and it may not mirror the statistical properties of the original dataset.
+> * **Code:** To honor confidentiality agreements, the source code and data for the original project are private. This repository demonstrates the system design and modeling approach used in the real-world solution.
 > * **Complexity:** This repository provides a high-level demonstration of the project's architecture and methodology. Certain implementation details and model complexities have been simplified for clarity.
 
 </br>
