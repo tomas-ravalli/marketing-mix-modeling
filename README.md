@@ -4,7 +4,6 @@
 
 <p align="left">
   <img src="https://img.shields.io/badge/License-MIT-lightgrey" alt="License">
-  <img src="https://img.shields.io/badge/ML-Supervised_Learning-lightgrey" alt="ML Task">
 </p>
 
 > An ML system that quantifies the impact of various marketing channels on sales. **Objective:** To leverage a Bayesian framework with flexible functional forms to accurately model advertising's lag and saturation effects, quantify uncertainty, and feed these probabilistic insights into a robust optimization engine to maximize portfolio ROI.
