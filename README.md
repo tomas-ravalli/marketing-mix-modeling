@@ -37,7 +37,7 @@ Purina's marketing team invests in a diverse portfolio of channels, including tr
 This project implements a Marketing Mix Model (MMM) to quantify the precise contribution of each marketing lever to sales revenue. By understanding the effectiveness and efficiency of past investments, the system provides a robust framework for optimizing future budget allocations to maximize product revenue.
 
 <p align="center">
-  <img src="./assets/mmm1.jpeg" alt="Uncertainty Diagram" width="800">
+  <img src="./assets/mmm1.jpeg" alt="Uncertainty Diagram" width="750">
   <br>
   <em>Fig. 1: Bayesian posteriors show Channel B has a higher mean ROI but also greater uncertainty than the more predictable Channel A.</em>
 </p>
