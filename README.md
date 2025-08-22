@@ -6,7 +6,7 @@
   <img src="https://img.shields.io/badge/License-MIT-lightgrey" alt="License">
 </p>
 
-> An ML system that quantifies the impact of various marketing channels on sales. **Objective:** To leverage a Bayesian framework with flexible functional forms to accurately model advertising's lag and saturation effects, quantify uncertainty, and feed these probabilistic insights into a robust optimization engine to maximize portfolio ROI.
+> An ML system that quantifies the impact of various marketing channels on sales for a top petcare brand. **Objective:** To leverage a Bayesian framework with flexible functional forms to accurately model advertising's lag and saturation effects, quantify uncertainty, and feed these probabilistic insights into a robust optimization engine to maximize portfolio ROI.
 
 ### Outline
 
@@ -21,18 +21,20 @@
 
 ## Key Results
 
+This initiative provides a forward-planning tool to simulate and optimize marketing investments. Based on the historical analysis of the brand's top product performance, the model delivers the following key insights:
+
 | Metric | Result (Posterior Mean) | Description |
 | :--- | :--- | :--- |
-| 📈 **ROAS Improvement** | **+22%** | The optimized budget allocation, derived from the full posterior distributions, showed a significant expected increase in ROAS. |
-| 💰 **Sales Uplift** | **+9%** (95% Credible Interval: 6–12%) | The model forecasted a robust increase in total sales, providing a credible range of outcomes for the proposed marketing strategy. |
-| 🎯 **Budget Optimization** | **30%** Budget Reallocation | The optimizer recommended reallocating 30% of the budget from channels with low and uncertain returns to those with high, stable effectiveness. |
-| 📊 **Model Fit** | **R²: 0.91** (BIC Selected) | The model's posterior predictive checks confirmed a strong fit to historical data, with functional forms chosen via Bayesian Information Criterion. |
+| 🎯 **Optimal Mix Recommendation** | **+22%** | The model suggested a budget reallocation of 15% from traditional print and linear TV towards Digital Video (YouTube) and Paid Search. |
+| 💰 **Projected ROI Uplift** | **+9%** (95% Credible Interval: 6–12%) | This optimized mix increased incremental revenue by an estimated $3.2M per quarter (+6.7% ROI) at the same level of investment. |
+| 📈 **Saturation Insights** | **30%** Budget Reallocation | Analysis of saturation curves revealed that spending on Facebook Ads has reached a point of diminishing returns. In contrast, channels like YouTube and influencer marketing showed significant room for growth before saturation. |
+| 📊 **Simulation Impact** | **R²: 0.91** (BIC Selected) | A simulation doubling the Digital Media spend, funded by proportionally cutting other channels, showed a potential +9% gain in PFME effectiveness, though with declining ROIs for the saturated digital channels. |
 
 ## Overview
 
-The core business challenge is allocating a multi-million dollar marketing budget under uncertainty. Advertisers use MMM to measure effectiveness, but advertising's complex dynamics–lag effects (carryover) and diminishing returns (saturation)–are difficult to capture with standard linear regression. This project addresses this by implementing a **Bayesian Marketing Mix Model**.
+Purina's marketing team invests in a diverse portfolio of channels, including traditional media (TV, print), digital campaigns (social media, search), and trade promotions (in-store displays, discounts). The complexity of these simultaneous activities makes it difficult to disentangle their individual impact on sales.
 
-This approach allows us to incorporate prior knowledge from previous studies and treats all model parameters as probability distributions. By using **PyMC** with flexible functional forms, we can capture the full posterior distribution for each channel's contribution and ROI. This probabilistic output then feeds directly into an optimization layer (`scipy.optimize`), which finds the optimal budget allocation based not just on expected return, but also on the uncertainty of those returns.
+This project implements a Marketing Mix Model (MMM) to quantify the precise contribution of each marketing lever to sales revenue. By understanding the effectiveness and efficiency of past investments, the system provides a robust framework for optimizing future budget allocations to maximize product revenue.
 
 <p align="center">
   <img src=".png" alt="Uncertainty Diagram" width="600">
@@ -40,12 +42,6 @@ This approach allows us to incorporate prior knowledge from previous studies and
   <em>Fig. 1: Bayesian posteriors show Channel B has a higher mean ROI but also greater uncertainty than the more predictable Channel A.</em>
 </p>
 
-| 🚩 The Problem | 💡 The Solution |
-| :--- | :--- |
-| **Point-Estimate ROI**: Traditional models ignore the uncertainty around ROI, treating all estimates as equally certain. | **Probabilistic ROI**: Delivers a full probability distribution for each channel's ROI, enabling risk-aware decision-making. |
-| **Rigid Assumptions**: Uses fixed, assumed shapes for adstock and saturation, which may not reflect reality. | **Flexible Functional Forms**: Models carryover (e.g., Weibull decay) and saturation (e.g., Hill function) as flexible curves whose parameters are learned from the data. |
-| **Ignoring Past Knowledge**: Standard models are often built from scratch, ignoring valuable insights from previous analyses. | **Informative Priors**: The Bayesian framework systematically incorporates prior knowledge from past models to improve parameter estimation. |
-| **Manual "What-Ifs"**: Planners must manually test a few budget scenarios, leaving the vast solution space unexplored. | **Automated Optimization**: Integrates with a numerical optimizer to automatically find the budget mix that maximizes a target KPI (e.g., revenue). |
 
 ## Architecture
 
@@ -57,27 +53,55 @@ The system is a prescriptive analytics pipeline that translates historical data 
   <em>Fig. 2: [System Context Diagram] Bayesian MMM & Optimization Engine.</em>
 </p>
 
+The system is designed as a four-stage pipeline:
+
+- Data Ingestion & ETL: Weekly data from various sources (Nielsen, Google Ads, Facebook, internal finance) is collected and transformed into a harmonized data mart. This stage handles cleaning, feature engineering, and alignment of all data to a weekly granularity.
+- Bayesian MMM Engine: The core of the system where a hierarchical Bayesian model is trained on the historical data. The model is built using Python with libraries like PyMC.
+- Optimization & Simulation Module: This component uses the trained model's posterior distributions to run "what-if" scenarios and find the optimal budget allocation that maximizes a given objective function (e.g., total revenue or ROI) under specified constraints.
+- Reporting & Visualization: A Streamlit or Dash web application provides interactive dashboards for visualizing sales decomposition, channel ROI, saturation curves, and the results of optimization and simulation runs.
+
 ## Dataset
 
 This project uses a synthetic time-series dataset (`data.csv`) that simulates weekly sales and marketing activities. The data is structured to be representative of a typical MMM problem, including own-brand activities, competitor actions, and control variables.
 
 ### Features
 
-| Category | Features | Description |
-| :--- | :--- | :--- |
-| **Response** | `y` | The quantity of our product sold per week. (Target Variable) |
-| **Own Levers** | `x1` (Price), `x2` (Promotions), `x3` (Distribution), `x8` (TV Spend) | Key marketing and sales levers controlled by the company. |
-| **Competitor** | `x4`, `x5`, `x6`, `x7`, `x9` | Price, promotion, distribution, and TV spend for two key competitors. |
+| Primary Category | Secondary Category  | Specific Features                                       |
+| :--------------- | :------------------ | :------------------------------------------------------ |
+| **Media** | Traditional Media   | TV, OOH, Radio, Print                                   |
+| **Media** | Digital Media       | YouTube, VOD, Digital Display, Social Media, Search     |
+| **Non-Media** | Own Drivers         | Consumer promo, sampling, trade promo                   |
+| **Non-Media** | Own Drivers         | Price, Distribution                                     |
+| **Non-Media** | Others              | External factors, trends, seasonality                   |
+| **Non-Media** | Others              | Competitive price, distribution, trade promotions & media |
+
+`sales_performance`is the target variable.
 
 ## Modeling
 
-The system's core is a hierarchical Bayesian model built in **`PyMC`**. This approach allows us to quantify uncertainty at every stage, from feature effects to the final ROI calculation. Attribution metrics like ROAS and channel contribution are calculated directly from the posterior samples, providing a complete distributional view.
+The core of the analysis is a Bayesian regression model that estimates the contribution of each sales driver.
 
-<p align="center">
-  <img src=".png" alt="Modeling and Optimization Loop" width="400">
-  <br>
-  <em>Fig. 3: The integrated modeling and optimization loop.</em>
-</p>
+### Bayesian Framework
+Unlike traditional frequentist methods, this approach yields a full probability distribution for each parameter. This allows us to quantify uncertainty, for example, by stating there is a "95% probability that the ROI for YouTube is between 2.1 and 2.8."
+
+### Adstock Transformation
+To capture the lagging effect of advertising, media variables are transformed using a geometric decay function. The model learns the optimal decay rate (memory effect) from the data, which indicates how long advertising's impact lingers.
+
+$adstock_t = x_t + \theta \cdot adstock_{t-1}$
+
+### Saturation Transformation
+To model diminishing returns, the adstocked media variables are passed through a Hill function. This S-shaped curve ensures that the incremental sales impact of an additional dollar of advertising spend decreases as the total spend increases.
+
+$Hill(x) = \beta \cdot \frac{x^\alpha}{x^\alpha + K^\alpha}$
+
+### Model Specs
+The final model takes the following general form:
+
+$$
+\text{Sales}_t = \mu + \sum_{i=1}^{n} \text{Hill}_i(\text{Adstock}_i(\text{media}_{it})) + \sum_{j=1}^{m} \gamma_j \cdot \text{control}_{jt} + \epsilon_t
+$$
+
+Where $\mu$ is the base sales, the first sum represents the contribution from various media channels after applying Adstock and Hill transformations, and the second sum captures the linear effect of control variables like price and distribution.
 
 | Component | Description | Toolkit |
 | :--- | :--- | :--- |
@@ -88,39 +112,31 @@ The system's core is a hierarchical Bayesian model built in **`PyMC`**. This app
 
 ## Structure
 
-The repository is structured to separate data processing, modeling, inference, and optimization logic.
+The project repository is organized into the following directories to ensure reproducibility and maintainability:
 
-```
-fcb-smartbooking/
-├── .gitignore                            # (Public) Specifies files for Git to ignore.
-├── LICENSE                               # (Public) Project license.
-├── README.md                             # (Public) This project overview.
-├── requirements.txt                      # (Private) The requirements file for the full project.
-├── config.py                             # (Private) Configuration file for paths and parameters.
-├── assets/                               # (Public) Diagrams and images for documentation.
+```bash
+├── assets/
 ├── data/
-│   └── 03_synthetic/
-│       ├── club_members_app.csv          # (Public) Synthetic raw seat release events.
-│       └── match_data_timeseries.csv     # (Public) The final time-series modeling dataset.
+│   ├── raw/          # Raw data from various sources
+│   └── processed/    # Cleaned and transformed modeling data
 ├── notebooks/
-│   └── eda.ipynb                         # (Private) Exploratory Data Analysis.
-└── src/
-    ├── __init__.py
-    ├── data/
-    │   ├── make_dataset_members.py       # (Public) Script to generate the members app data.
-    │   └── make_dataset_match.py         # (Public) Script to generate the final time-series data.
-    ├── features/
-    │   └── build_features.py             # (Private) Feature engineering scripts.
-    └── models/
-        ├── train_availability_model.py   # (Private) Script for model training.
-        └── predict_availability.py       # (Private) Script for generating predictions.
+│   ├── 01-eda.ipynb
+│   ├── 02-feature-engineering.ipynb
+│   └── 03-modeling.ipynb
+├── reports/
+│   └── figures/      # Charts for presentations (e.g., saturation curves)
+├── src/
+│   ├── data.py       # Data processing and pipeline scripts
+│   ├── model.py      # Modeling functions and classes
+│   └── viz.py        # Visualization functions
+└── app/
+    └── dashboard.py  # Code for the interactive Streamlit dashboard
 ```
 
 </br>
 
 > [!WARNING]
-> * **Data:** The data in this repository is synthetically generated for demonstration purposes and it may not mirror the statistical properties of the original dataset.
-> * **Complexity:** This repository provides a high-level demonstration of the project's architecture and methodology. Certain implementation details and model complexities have been simplified for clarity.
+> This repository provides a high-level demonstration of the project's architecture and methodology. Certain implementation details and model complexities have been simplified for clarity.
 
 </br>
 
