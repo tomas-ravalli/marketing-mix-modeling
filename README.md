@@ -22,7 +22,7 @@
 
 | Metric | Result (Posterior Mean) | Description |
 | :--- | :--- | :--- |
-| 🎯 **Optimal Mix Recommendation** | **15% Budget reallocation%** | The model suggested a budget reallocation of 15% from traditional print and linear TV towards Digital Video (YouTube) and Paid Search. |
+| 🎯 **Optimal Mix Recommendation** | **15% Budget reallocation** | The model suggested a budget reallocation of 15% from traditional print and linear TV towards Digital Video (YouTube) and Paid Search. |
 | 💰 **Projected ROI Uplift** | **+6.7%** (95% CI: 4.5%–8.9%) | This optimized mix increased incremental revenue by an estimated $3.2M per quarter (+6.7% ROI) at the same level of investment. |
 | 📈 **Saturation Insights** | Facebook Ads: saturation at **~$75K/wk** | Analysis of saturation curves revealed that spending on Facebook Ads has reached a point of diminishing returns. In contrast, channels like YouTube and influencer marketing showed significant room for growth before saturation. |
 | 📊 **Simulation Impact** | **+9%** PFME effectiveness gain| A simulation doubling the Digital Media spend, funded by proportionally cutting other channels, showed a potential +9% gain in PFME effectiveness, though with declining ROIs for the saturated digital channels. |
@@ -66,15 +66,15 @@ This project uses a time-series dataset of weekly sales and marketing activities
 | **Non-Media** | Others              | External factors, trends, seasonality                   |
 | **Non-Media** | Others              | Competitive price, distribution, trade promotions & media |
 
-`sales_performance`as the target variable.
+`sales_performance` was used as the target variable for the model.
 
 ## Modeling
 
 The core of the analysis is a Bayesian regression model that estimates the contribution of each sales driver.
 
-- **Bayesian framework**: Unlike traditional frequentist methods, this approach yields a full probability distribution for each parameter. This allowed us to quantify uncertainty, for example, by stating there is a "95% probability that the ROI for YouTube is between 2.1 and 2.8."
-- **Adstock transformation**: To capture the lagging effect of advertising, media variables were transformed using a geometric decay function. The model learns the optimal decay rate (memory effect) from the data, which indicates how long advertising's impact lingers.
-- **Saturation transformation**: To model diminishing returns, the adstocked media variables were passed through a Hill function. This S-shaped curve ensures that the incremental sales impact of an additional "dollar" of advertising spend decreases as the total spend increases.
+- **Bayesian framework**: Unlike traditional frequentist methods, this approach yielded a full probability distribution for each parameter. This allowed us to quantify uncertainty, for example, by stating there is a "95% probability that the ROI for YouTube is between 2.1 and 2.8."
+- **Adstock transformation**: To capture the lagging effect of advertising, media variables were transformed using a geometric decay function. The model learned the optimal decay rate (memory effect) from the data, which indicates how long advertising's impact lingers.
+- **Saturation transformation**: To model diminishing returns, the adstocked media variables were passed through a Hill function. This S-shaped curve ensured that the incremental sales impact of an additional "dollar" of advertising spend decreases as the total spend increases.
 
 | Component | Description | Toolkit |
 | :--- | :--- | :--- |
@@ -89,7 +89,7 @@ The primary value of this model is its application in forward-looking strategic 
 
 ### 🧪 Simulation
 
-The simulation module allowed the team to test the probable impact of various budget scenarios before committing any funds. This addressed key questions like, "What is the revenue impact of a budget change during the year?"
+The simulation module allowed the team to test the probable impact of various budget scenarios before committing any funds. This addressed key questions like, "What is the revenue impact of a budget change during the year?". A few examples:
 
 * Scenario 1: **Shifting budget between channels**
     The team simulated reallocating **$1M** from the Print budget to the Digital Video budget for the upcoming quarter. The model predicted that this shift would likely result in a **net increase of +$2.3M** in incremental revenue, confirming that Digital Video had a higher marginal ROI.
@@ -104,7 +104,7 @@ The simulation module allowed the team to test the probable impact of various bu
 
 While simulation is used for testing specific ideas, the optimization module is used to find the mathematically best budget allocation given a set of constraints. This directly answers the question, "How can I maximize ROI for a given budget?"
 
-* **Product launch campaign budget optimization**
+Example: **Product launch campaign budget optimization**
     At the start of the campaign planning, the marketing team set a total media budget of **$2M** with the objective of maximizing incremental revenue.
     * **Process:** The optimizer was run with the $2M budget constraint. It processed the learned ROI and saturation curves for every single channel.
     * **Output:** The module delivered a detailed, channel-specific spending plan. This allocation automatically avoided over-investing in channels that were near their saturation point, like Facebook Ads, thereby preventing wasteful spending.
