@@ -1,4 +1,4 @@
-![My Cover](./assets/dp-cover.jpeg)
+![My Cover](./assets/mmm-cover.jpeg)
 
 # Bayesian Marketing Mix Modeling for Budget Optimization
 
