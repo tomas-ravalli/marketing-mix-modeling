@@ -15,13 +15,10 @@
 - [Architecture](#architecture)
 - [Dataset](#dataset)
 - [Modeling](#modeling)
-- [Structure](#structure)
-
+- [Usage](#usage)
 ---
 
 ## Key Results
-
-This initiative provides a forward-planning tool to simulate and optimize marketing investments. Based on the historical analysis of the brand's top product performance, the model delivers the following key insights:
 
 | Metric | Result (Posterior Mean) | Description |
 | :--- | :--- | :--- |
@@ -48,15 +45,15 @@ This project implements a Marketing Mix Model (MMM) to quantify the precise cont
 The system is a prescriptive analytics pipeline that translates historical data into an optimal forward-looking strategy. It moves beyond simple prediction to active recommendation by integrating a Bayesian inference core with a consequential optimization engine.
 
 <p align="center">
-  <img src="./assets/mmm-scd.png" alt="Bayesian MMM Architecture" width="850">
+  <img src="./assets/mmm-scd.png" alt="Bayesian MMM Architecture" width="1000">
   <br>
   <em>Fig. 2: [System Context Diagram] Bayesian Marketing Mix Modeling</em>
 </p>
 
 The system is designed as a three-stage pipeline:
 
-- **Data Ingestion**: Weekly data from various sources (Nielsen, Google Analytics, Google Ads, Facebook, internal finance) is collected and transformed into a harmonized data warehouse. This stage handles cleaning, feature engineering, and alignment of all data to a weekly granularity.
-- **Bayesian MMM Engine**: The core of the system where a hierarchical Bayesian model is trained on the historical data. The model is built using Python with libraries like PyMC.
+- **Data Warehousing**: Weekly data from various sources (Nielsen, Google Analytics, Google Ads, Facebook, internal finance) is collected and transformed into a harmonized data warehouse. This stage handles cleaning, feature engineering, and alignment of all data to a weekly granularity.
+- **Bayesian MMM System**: The core of the system where a hierarchical Bayesian model is trained on the historical data. The model is built using Python with libraries like PyMC.
 - **Optimization & Simulation Module**: This component uses the trained model's posterior distributions to run "what-if" scenarios and find the optimal budget allocation that maximizes a given objective function (total revenue or ROI) under specified constraints.
 
 ## Dataset
@@ -80,27 +77,9 @@ This project uses a time-series dataset of weekly sales and marketing activities
 
 The core of the analysis is a Bayesian regression model that estimates the contribution of each sales driver.
 
-### Bayesian Framework
-Unlike traditional frequentist methods, this approach yields a full probability distribution for each parameter. This allows us to quantify uncertainty, for example, by stating there is a "95% probability that the ROI for YouTube is between 2.1 and 2.8."
-
-### Adstock Transformation
-To capture the lagging effect of advertising, media variables are transformed using a geometric decay function. The model learns the optimal decay rate (memory effect) from the data, which indicates how long advertising's impact lingers.
-
-$adstock_t = x_t + \theta \cdot adstock_{t-1}$
-
-### Saturation Transformation
-To model diminishing returns, the adstocked media variables are passed through a Hill function. This S-shaped curve ensures that the incremental sales impact of an additional dollar of advertising spend decreases as the total spend increases.
-
-$Hill(x) = \beta \cdot \frac{x^\alpha}{x^\alpha + K^\alpha}$
-
-### Model Specs
-The final model takes the following general form:
-
-$$
-\text{Sales}_t = \mu + \sum_{i=1}^{n} \text{Hill}_i(\text{Adstock}_i(\text{media}_{it})) + \sum_{j=1}^{m} \gamma_j \cdot \text{control}_{jt} + \epsilon_t
-$$
-
-Where $\mu$ is the base sales, the first sum represents the contribution from various media channels after applying Adstock and Hill transformations, and the second sum captures the linear effect of control variables like price and distribution.
+- **Bayesian Framework**: Unlike traditional frequentist methods, this approach yields a full probability distribution for each parameter. This allows us to quantify uncertainty, for example, by stating there is a "95% probability that the ROI for YouTube is between 2.1 and 2.8."
+- **Adstock Transformation**: To capture the lagging effect of advertising, media variables are transformed using a geometric decay function. The model learns the optimal decay rate (memory effect) from the data, which indicates how long advertising's impact lingers.
+- **Saturation Transformation**: To model diminishing returns, the adstocked media variables are passed through a Hill function. This S-shaped curve ensures that the incremental sales impact of an additional dollar of advertising spend decreases as the total spend increases.
 
 | Component | Description | Toolkit |
 | :--- | :--- | :--- |
@@ -109,28 +88,32 @@ Where $\mu$ is the base sales, the first sum represents the contribution from va
 | **Model Selection** | The **Bayesian Information Criterion (BIC)** is used to compare and select the most appropriate functional form specifications for the adstock and saturation effects, balancing model fit and complexity. | **`Python`** |
 | **Budget Optimization** | The posterior distributions of channel ROIs are passed to a numerical optimizer. It solves for the budget allocation that maximizes the expected revenue, subject to a total budget constraint. | **`SciPy.optimize`** |
 
-## Structure
+## Usage
 
-The project repository is organized into the following directories to ensure reproducibility and maintainability:
+The primary value of this model is its application in forward-looking strategic planning. The marketing team used the system in two main capacities: running "what-if" simulations to explore potential outcomes and using the optimizer to find the single best budget allocation. This allowed them to answer critical business questions and make data-driven decisions.
 
-```bash
-├── assets/
-├── data/
-│   ├── raw/          # Raw data from various sources
-│   └── processed/    # Cleaned and transformed modeling data
-├── notebooks/
-│   ├── 01-eda.ipynb
-│   ├── 02-feature-engineering.ipynb
-│   └── 03-modeling.ipynb
-├── reports/
-│   └── figures/      # Charts for presentations (e.g., saturation curves)
-├── src/
-│   ├── data.py       # Data processing and pipeline scripts
-│   ├── model.py      # Modeling functions and classes
-│   └── viz.py        # Visualization functions
-└── app/
-    └── dashboard.py  # Code for the interactive Streamlit dashboard
-```
+### 🧪 Simulation
+
+The simulation module allowed the team to test the probable impact of various budget scenarios before committing any funds. This addressed key questions like, "What is the revenue impact of a budget change during the year?"
+
+* **Scenario 1: Shifting Budget Between Channels**
+    The team simulated reallocating **$1M** from the Print budget to the Digital Video (YouTube) budget for the upcoming quarter. The model predicted that this shift would likely result in a **net increase of +$2.3M** in incremental revenue, confirming that Digital Video had a higher marginal ROI.
+
+* **Scenario 2: Responding to a Budget Cut**
+    When faced with a potential **10% budget cut** mid-year, the team used the simulator to understand the consequences. The model forecasted the likely decrease in sales volume, allowing them to communicate the specific business impact to leadership and plan accordingly.
+
+* **Scenario 3: Planning to Meet a Revenue Target**
+    To answer, "How much do I need to invest to meet my revenue target?", the team worked backward. They set a goal of **$15M in incremental revenue** for Q4 and used the model to estimate the total marketing investment required to achieve it, given the current channel mix.
+
+### 🎯 Optimization
+
+While simulation is used for testing specific ideas, the optimization module is used to find the mathematically best budget allocation given a set of constraints. This directly answers the question, "How can I maximize ROI for a given budget?"
+
+* **Annual Budget Optimization**
+    At the start of the annual planning cycle, the marketing team set a total media budget of **$20M** with the objective of maximizing incremental revenue.
+    * **Process:** The optimizer was run with the $20M budget constraint. It processed the learned ROI and saturation curves for every single channel.
+    * **Output:** The module delivered a detailed, channel-specific spending plan (e.g., "Allocate $4.1M to Paid Search, $3.2M to YouTube, $2.8M to Social Media..."). Crucially, this allocation automatically avoided over-investing in channels that were near their saturation point, like Facebook Ads, thereby preventing wasteful spending.
+    * **Outcome:** The recommended budget was projected to increase the overall marketing ROI by **+6.7%** compared to the previous year's plan, which was the basis for the **15% budget reallocation** highlighted in the Key Results. The marketing team could explore these results in an interactive dashboard to compare the optimized plan against their initial proposals.
 
 </br>
 
