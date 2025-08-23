@@ -104,11 +104,10 @@ The simulation module allowed the team to test the probable impact of various bu
 
 While simulation is used for testing specific ideas, the optimization module is used to find the mathematically best budget allocation given a set of constraints. This directly answers the question, "How can I maximize ROI for a given budget?"
 
-Example: **Product launch campaign budget optimization**
-    At the start of the campaign planning, the marketing team set a total media budget of **$2M** with the objective of maximizing incremental revenue.
-    * **Process:** The optimizer was run with the $2M budget constraint. It processed the learned ROI and saturation curves for every single channel.
-    * **Output:** The module delivered a detailed, channel-specific spending plan. This allocation automatically avoided over-investing in channels that were near their saturation point, like Facebook Ads, thereby preventing wasteful spending.
-    * **Outcome:** The recommended budget was projected to increase the overall marketing ROI by **+6.7%** compared to the previous year's plan, which was the basis for the **15% budget reallocation** highlighted in the Key Results. The marketing team could explore these results in an interactive dashboard to compare the optimized plan against their initial proposals.
+Example: **Product launch campaign budget optimization** – At the start of the campaign planning, the marketing team set a total media budget of **$2M** with the objective of maximizing incremental revenue.
+* **Process:** The optimizer was run with the $2M budget constraint. It processed the learned ROI and saturation curves for every single channel.
+* **Output:** The module delivered a detailed, channel-specific spending plan. This allocation automatically avoided over-investing in channels that were near their saturation point, like Tik-Tok, thereby preventing wasteful spending.
+* **Outcome:** The recommended budget was projected to increase the overall marketing ROI by **+5.3%** compared to the previous year's plan, which was the basis for a **11% budget reallocation**. The marketing team could explore these results in an interactive dashboard to compare the optimized plan against their initial proposals.
 
 </br>
 
