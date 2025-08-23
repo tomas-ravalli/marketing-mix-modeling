@@ -66,7 +66,7 @@ This project uses a time-series dataset of weekly sales and marketing activities
 | **Non-Media** | Others              | External factors, trends, seasonality                   |
 | **Non-Media** | Others              | Competitive price, distribution, trade promotions & media |
 
-`sales_performance`is the target variable.
+`sales_performance`as the target variable.
 
 ## Modeling
 
