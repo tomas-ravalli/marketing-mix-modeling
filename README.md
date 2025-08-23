@@ -89,20 +89,20 @@ The primary value of this model is its application in forward-looking strategic 
 
 ### 🧪 Simulation
 
-The simulation module allowed the team to test the probable impact of various budget scenarios before committing any funds. This addressed key questions like, "What is the revenue impact of a budget change during the year?". A few examples:
+The simulation module allowed the team to test the probable impact of various budget scenarios before committing any funds. This addressed key questions like, *"What is the revenue impact of a budget change during the year?"*. A few examples:
 
-* Scenario 1: **Shifting budget between channels**
+* **Scenario 1: Shifting budget between channels**
     The team simulated reallocating **€1M** from the Print budget to the Digital Video budget for the upcoming quarter. The model predicted that this shift would likely result in a **net increase of +€2.3M** in incremental revenue, confirming that Digital Video had a higher marginal ROI.
 
-* Scenario 2: **Responding to a budget cut**
+* **Scenario 2: Responding to a budget cut**
     When faced with a potential **10% budget cut** mid-year, the team used the simulator to understand the consequences. The model forecasted the likely decrease in sales volume, allowing them to communicate the specific business impact to leadership and plan accordingly.
 
-* Scenario 3: **Planning to meet a revenue target**
+* **Scenario 3: Planning to meet a revenue target**
     To answer, "How much do I need to invest to meet my revenue target?", the team worked backward. They set a goal of **€15M in incremental revenue** for Q4 and used the model to estimate the total marketing investment required to achieve it, given the current channel mix.
 
 ### 🎯 Optimization
 
-While simulation is used for testing specific ideas, the optimization module is used to find the mathematically best budget allocation given a set of constraints. This directly answers the question, "How can I maximize ROI for a given budget?"
+While simulation is used for testing specific ideas, the optimization module is used to find the mathematically best budget allocation given a set of constraints. This directly answers the question, *"How can I maximize ROI for a given budget?"*
 
 Example: **Product launch campaign budget optimization** – At the start of the campaign planning, the marketing team set a total media budget of **€2M** with the objective of maximizing incremental revenue.
 * **Process:** The optimizer was run with the €2M budget constraint. It processed the learned ROI and saturation curves for every single channel.
